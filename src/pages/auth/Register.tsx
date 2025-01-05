@@ -7,7 +7,7 @@ import { Input } from '@/components/base/Input';
 import { Text } from '@/components/base/Text';
 
 const Register = () => {
-  const { register, isLoading } = useAuth();
+  const { signUp, isLoading } = useAuth();
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -18,7 +18,7 @@ const Register = () => {
     setError(null);
 
     try {
-      await register(email, password, name);
+      await signUp(email, password, name);
     } catch (err: any) {
       setError(err.message || 'Kayıt olurken bir hata oluştu');
     }

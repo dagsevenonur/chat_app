@@ -1,41 +1,36 @@
-import { createContext, useContext, useEffect, useState } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { Session, User } from '@supabase/supabase-js';
-import { useNavigate, useLocation } from 'react-router-dom';
 import { auth } from '@/lib/supabase';
 
 interface AuthContextType {
   user: User | null;
-  session: Session | null;
   isLoading: boolean;
-  login: (email: string, password: string) => Promise<void>;
-  register: (email: string, password: string, name: string) => Promise<void>;
-  logout: () => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signUp: (email: string, password: string, name: string) => Promise<void>;
+  signOut: () => Promise<void>;
   resetPassword: (email: string) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+export const useAuth = () => {
+  const context = useContext(AuthContext);
+  if (!context) {
+    throw new Error('useAuth must be used within an AuthProvider');
+  }
+  return context;
+};
+
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
-  const navigate = useNavigate();
-  const location = useLocation();
   const [user, setUser] = useState<User | null>(null);
-  const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    // İlk yüklemede oturumu kontrol et
-    const initSession = async () => {
+    // Mevcut oturumu kontrol et
+    const checkSession = async () => {
       try {
         const session = await auth.getSession();
-        if (session) {
-          setSession(session);
-          setUser(session.user || null);
-          
-          // Sadece auth sayfalarındaysa yönlendir
-          if (location.pathname === '/login' || location.pathname === '/register') {
-            navigate('/chats');
-          }
-        }
+        setUser(session?.user || null);
       } catch (error) {
         console.error('Oturum kontrolü sırasında hata:', error);
       } finally {
@@ -43,113 +38,69 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       }
     };
 
-    initSession();
+    checkSession();
 
     // Oturum değişikliklerini dinle
-    const { data: { subscription } } = auth.onAuthStateChange((session) => {
-      setSession(session);
+    const { data: { subscription } } = auth.onAuthStateChange((_event: string, session: Session | null) => {
       setUser(session?.user || null);
       setIsLoading(false);
-
-      if (session) {
-        // Sadece auth sayfalarındaysa yönlendir
-        if (location.pathname === '/login' || location.pathname === '/register') {
-          navigate('/chats');
-        }
-      } else {
-        // Sadece korumalı sayfalardaysa yönlendir
-        if (location.pathname !== '/login' && location.pathname !== '/register') {
-          navigate('/login');
-        }
-      }
     });
 
     return () => {
       subscription.unsubscribe();
     };
-  }, [navigate, location]);
+  }, []);
 
-  const login = async (email: string, password: string) => {
+  // Giriş yap
+  const signIn = async (email: string, password: string) => {
     try {
-      setIsLoading(true);
-      const { session, error } = await auth.signIn(email, password);
+      const { error } = await auth.signIn(email, password);
       if (error) throw error;
-      
-      setSession(session);
-      setUser(session?.user || null);
-      navigate('/chats');
-    } catch (error) {
-      console.error('Giriş sırasında hata:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      throw new Error(error.message || 'Giriş yapılırken bir hata oluştu');
     }
   };
 
-  const register = async (email: string, password: string, name: string) => {
+  // Kayıt ol
+  const signUp = async (email: string, password: string, name: string) => {
     try {
-      setIsLoading(true);
-      const { session, error } = await auth.signUp(email, password, { name });
+      const { error } = await auth.signUp(email, password, { name });
       if (error) throw error;
-
-      setSession(session);
-      setUser(session?.user || null);
-      navigate('/chats');
-    } catch (error) {
-      console.error('Kayıt sırasında hata:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      throw new Error(error.message || 'Kayıt olurken bir hata oluştu');
     }
   };
 
-  const logout = async () => {
+  // Çıkış yap
+  const signOut = async () => {
     try {
-      setIsLoading(true);
       const { error } = await auth.signOut();
       if (error) throw error;
-      
-      setSession(null);
-      setUser(null);
-      navigate('/login');
-    } catch (error) {
-      console.error('Çıkış sırasında hata:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      throw new Error(error.message || 'Çıkış yapılırken bir hata oluştu');
     }
   };
 
+  // Şifre sıfırlama
   const resetPassword = async (email: string) => {
     try {
-      setIsLoading(true);
       const { error } = await auth.resetPassword(email);
       if (error) throw error;
-    } catch (error) {
-      console.error('Şifre sıfırlama sırasında hata:', error);
-      throw error;
-    } finally {
-      setIsLoading(false);
+    } catch (error: any) {
+      throw new Error(error.message || 'Şifre sıfırlanırken bir hata oluştu');
     }
   };
 
   const value = {
     user,
-    session,
     isLoading,
-    login,
-    register,
-    logout,
+    signIn,
+    signUp,
+    signOut,
     resetPassword,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
 };
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-}; 
+export default AuthContext; 

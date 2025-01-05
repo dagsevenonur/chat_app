@@ -237,14 +237,14 @@ export const auth = {
 
   // Oturum kontrolü
   getSession: async () => {
-    const { data: { session }, error } = await supabase.auth.getSession();
+    const { data: { session } } = await supabase.auth.getSession();
     return session;
   },
 
   // Oturum değişikliği dinleme
-  onAuthStateChange: (callback: (session: any) => void) => {
+  onAuthStateChange: (callback: (event: string, session: any) => void) => {
     return supabase.auth.onAuthStateChange((event, session) => {
-      callback(session);
+      callback(event, session);
     });
   },
 }; 

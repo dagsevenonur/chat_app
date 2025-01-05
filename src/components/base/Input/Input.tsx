@@ -1,128 +1,74 @@
-import { Component } from 'react';
-import { InputProps, InputState } from './InputTypes';
-import { getBaseStyles, getWrapperStyles } from './styles';
-import { DEFAULT_PROPS } from './constants';
+import { forwardRef } from 'react';
+import { cn } from '@/lib/utils';
 
-import {
-  InputLabel,
-  InputIcon,
-  InputHelperText,
-  PasswordToggle,
-  ClearButton,
-  LoadingSpinner
-} from './components';
-
-export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+export interface CustomInputProps
+  extends React.InputHTMLAttributes<HTMLInputElement> {
+  label?: string;
+  error?: string;
+  isRequired?: boolean;
   leftIcon?: React.ReactNode;
   rightIcon?: React.ReactNode;
-  isDisabled?: boolean;
-  errorMessage?: string;
   onClear?: () => void;
 }
 
-class Input extends Component<InputProps, InputState> {
-  static defaultProps = DEFAULT_PROPS;
-
-  constructor(props: InputProps) {
-    super(props);
-    this.state = {
-      showPassword: false
-    };
-  }
-
-  private togglePasswordVisibility = () => {
-    this.setState(prevState => ({
-      showPassword: !prevState.showPassword
-    }));
-  };
-
-  render() {
-    const {
-      // Temel özellikler
-      type,
-      value,
-      defaultValue,
-      placeholder,
-      size,
-      status,
-      isDisabled,
-      isLoading,
-      isRequired,
-      autoFocus,
+const Input = forwardRef<HTMLInputElement, CustomInputProps>(
+  (
+    {
       className,
-
-      // Label ve yardımcı metinler
+      type,
       label,
-      helperText,
-      errorMessage,
-      successMessage,
-
-      // İkonlar ve aksesuarlar
+      error,
+      isRequired,
       leftIcon,
       rightIcon,
-      showClearButton,
-      showPasswordToggle,
-
-      // Event handlers
-      onChange,
-      onFocus,
-      onBlur,
-      onClear
-    } = this.props;
-
-    const { showPassword } = this.state;
-    const actualType = type === 'password' && showPassword ? 'text' : type;
-    const hasValue = value !== undefined && value !== '';
-
+      onClear,
+      ...props
+    },
+    ref
+  ) => {
     return (
-      <div className="w-full space-y-2">
+      <div className="space-y-2">
         {label && (
-          <InputLabel label={label} isRequired={isRequired} />
+          <label className="text-sm font-medium text-gray-700">
+            {label}
+            {isRequired && <span className="text-red-500">*</span>}
+          </label>
         )}
-
-        <div className={getWrapperStyles(isDisabled)}>
-          {leftIcon && <InputIcon icon={leftIcon} position="left" />}
-
+        <div className="relative">
+          {leftIcon && (
+            <div className="absolute left-3 top-1/2 -translate-y-1/2">
+              {leftIcon}
+            </div>
+          )}
           <input
-            type={actualType}
-            value={value}
-            defaultValue={defaultValue}
-            placeholder={placeholder}
-            disabled={isDisabled}
-            required={isRequired}
-            autoFocus={autoFocus}
-            className={getBaseStyles(size!, status!, !!leftIcon, !!rightIcon, className)}
-            onChange={onChange}
-            onFocus={onFocus}
-            onBlur={onBlur}
+            type={type}
+            className={cn(
+              'h-10 w-full rounded-md border border-gray-200 bg-white px-3 py-2 text-sm outline-none transition-colors',
+              'placeholder:text-gray-400',
+              'focus:border-blue-500 focus:ring-1 focus:ring-blue-500',
+              'disabled:cursor-not-allowed disabled:opacity-50',
+              leftIcon && 'pl-9',
+              rightIcon && 'pr-9',
+              error && 'border-red-500 focus:border-red-500 focus:ring-red-500',
+              className
+            )}
+            ref={ref}
+            {...props}
           />
-
-          {rightIcon && !showClearButton && !showPasswordToggle && (
-            <InputIcon icon={rightIcon} position="right" />
+          {rightIcon && (
+            <div className="absolute right-3 top-1/2 -translate-y-1/2">
+              {rightIcon}
+            </div>
           )}
-
-          {type === 'password' && showPasswordToggle && (
-            <PasswordToggle
-              show={showPassword}
-              onToggle={this.togglePasswordVisibility}
-            />
-          )}
-
-          {showClearButton && hasValue && (
-            <ClearButton onClear={onClear!} />
-          )}
-
-          {isLoading && <LoadingSpinner />}
         </div>
-
-        <InputHelperText
-          helperText={helperText}
-          errorMessage={errorMessage}
-          successMessage={successMessage}
-        />
+        {error && (
+          <p className="text-sm text-red-500">{error}</p>
+        )}
       </div>
     );
   }
-}
+);
+
+Input.displayName = 'Input';
 
 export default Input; 

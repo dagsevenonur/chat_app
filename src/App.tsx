@@ -1,39 +1,17 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider, useAuth } from '@/contexts/AuthContext';
-import ChatLayout from '@/layouts/ChatLayout';
 import Login from '@/pages/auth/Login';
 import Register from '@/pages/auth/Register';
-import ChatPage from '@/pages/chat/ChatPage';
+import ForgotPassword from '@/pages/auth/ForgotPassword';
+import ChatLayout from '@/pages/chat/ChatLayout';
 
 const ProtectedRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold">Yükleniyor...</h2>
-        </div>
-      </div>
-    );
-  }
-
+  const { user } = useAuth();
   return user ? <>{children}</> : <Navigate to="/login" />;
 };
 
 const PublicRoute = ({ children }: { children: React.ReactNode }) => {
-  const { user, isLoading } = useAuth();
-
-  if (isLoading) {
-    return (
-      <div className="flex h-screen items-center justify-center">
-        <div className="text-center">
-          <h2 className="text-2xl font-semibold">Yükleniyor...</h2>
-        </div>
-      </div>
-    );
-  }
-
+  const { user } = useAuth();
   return !user ? <>{children}</> : <Navigate to="/chats" />;
 };
 
@@ -59,50 +37,28 @@ const App = () => {
               </PublicRoute>
             }
           />
+          <Route
+            path="/forgot-password"
+            element={
+              <PublicRoute>
+                <ForgotPassword />
+              </PublicRoute>
+            }
+          />
 
           {/* Protected Routes */}
           <Route
-            path="/"
+            path="/chats/*"
             element={
               <ProtectedRoute>
-                <Navigate to="/chats" />
+                <ChatLayout />
               </ProtectedRoute>
             }
           />
 
-          <Route
-            path="/chats"
-            element={
-              <ProtectedRoute>
-                <ChatLayout>
-                  <div className="flex h-full items-center justify-center">
-                    <div className="text-center">
-                      <h2 className="mb-2 text-2xl font-semibold">
-                        FlowChat'e Hoş Geldiniz!
-                      </h2>
-                      <p className="text-gray-600">
-                        Sohbete başlamak için sol menüden bir sohbet seçin veya yeni bir sohbet oluşturun.
-                      </p>
-                    </div>
-                  </div>
-                </ChatLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          <Route
-            path="/chats/:chatId"
-            element={
-              <ProtectedRoute>
-                <ChatLayout>
-                  <ChatPage />
-                </ChatLayout>
-              </ProtectedRoute>
-            }
-          />
-
-          {/* Catch all */}
-          <Route path="*" element={<Navigate to="/chats" />} />
+          {/* Redirect */}
+          <Route path="/" element={<Navigate to="/chats" replace />} />
+          <Route path="*" element={<Navigate to="/chats" replace />} />
         </Routes>
       </AuthProvider>
     </Router>

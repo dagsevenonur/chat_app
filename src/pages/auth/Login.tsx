@@ -7,7 +7,7 @@ import { Input } from '@/components/base/Input';
 import { Text } from '@/components/base/Text';
 
 const Login = () => {
-  const { login, isLoading } = useAuth();
+  const { signIn, isLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -17,7 +17,7 @@ const Login = () => {
     setError(null);
 
     try {
-      await login(email, password);
+      await signIn(email, password);
     } catch (err: any) {
       setError(err.message || 'Giriş yapılırken bir hata oluştu');
     }

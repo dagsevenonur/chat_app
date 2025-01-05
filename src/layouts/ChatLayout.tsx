@@ -18,7 +18,7 @@ interface Chat {
 
 const ChatLayout = ({ children }: { children: React.ReactNode }) => {
   const navigate = useNavigate();
-  const { user, logout } = useAuth();
+  const { user, signOut } = useAuth();
   const [searchQuery, setSearchQuery] = useState('');
   const [chats, setChats] = useState<Chat[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -67,11 +67,11 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
     };
   }, [user]);
 
-  const handleCreateChat = async (selectedUsers: { id: string }[]) => {
+  const handleCreateChat = async (selectedUsers: string[]) => {
     if (!user) return;
 
     try {
-      const participants = [user.id, ...selectedUsers.map((u) => u.id)];
+      const participants = [user.id, ...selectedUsers];
       const newChat = await chat.createChat(participants);
       navigate(`/chats/${newChat.id}`);
     } catch (error) {
@@ -81,7 +81,7 @@ const ChatLayout = ({ children }: { children: React.ReactNode }) => {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      await signOut();
       navigate('/login');
     } catch (error) {
       console.error('Çıkış yapılırken hata:', error);
