@@ -1,50 +1,147 @@
-# React + TypeScript + Vite
+# Modern Chat Uygulaması
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Modern, gerçek zamanlı bir chat uygulaması. React ve Supabase kullanılarak geliştirilmiştir.
 
-Currently, two official plugins are available:
+## 🚀 Özellikler
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### Kullanıcı Yönetimi
+- Email/şifre ile kimlik doğrulama
+- Kullanıcı profili (avatar, durum)
+- Çevrimiçi/çevrimdışı durum göstergesi
 
-## Expanding the ESLint configuration
+### Mesajlaşma
+- Birebir gerçek zamanlı sohbet
+- Maksimum mesaj uzunluğu: 200 karakter
+- Resim paylaşımı desteği
+  - Maksimum boyut: 20MB
+  - Desteklenen formatlar: PNG, JPG, JPEG
+- Okundu bildirimi
+- Yazıyor... göstergesi
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### Arayüz
+- Modern ve minimal tasarım
+- Koyu/Açık tema desteği
+- Tam responsive tasarım
+- Yumuşak geçiş animasyonları
 
-- Configure the top-level `parserOptions` property like this:
+## 🛠️ Teknoloji Stack
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
-    },
-  },
-})
+- **Frontend:**
+  - React
+  - TypeScript
+  - TailwindCSS
+  - Shadcn/ui
+
+- **Backend & Veritabanı:**
+  - Supabase
+    - Auth
+    - Database
+    - Storage
+    - Realtime
+
+## 📦 Veritabanı Yapısı
+
+### Tablolar
+
+#### profiles
+- id (uuid, primary key)
+- username (text, unique)
+- avatar_url (text)
+- status (text)
+- last_seen (timestamp)
+- created_at (timestamp)
+
+#### chats
+- id (uuid, primary key)
+- created_at (timestamp)
+- updated_at (timestamp)
+
+#### chat_participants
+- id (uuid, primary key)
+- chat_id (uuid, foreign key)
+- profile_id (uuid, foreign key)
+- created_at (timestamp)
+
+#### messages
+- id (uuid, primary key)
+- chat_id (uuid, foreign key)
+- sender_id (uuid, foreign key)
+- content (text, max 200 char)
+- type (text: 'text' | 'image')
+- image_url (text)
+- is_edited (boolean)
+- created_at (timestamp)
+- updated_at (timestamp)
+
+#### message_status
+- id (uuid, primary key)
+- message_id (uuid, foreign key)
+- profile_id (uuid, foreign key)
+- is_delivered (boolean)
+- is_read (boolean)
+- delivered_at (timestamp)
+- read_at (timestamp)
+
+## 🎨 UI Renk Paleti
+
+```css
+Primary: #3B82F6 (mavi)
+Secondary: #6366F1 (indigo)
+Background (Light): #FFFFFF
+Background (Dark): #111827
+Text (Light): #1F2937
+Text (Dark): #F9FAFB
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+## 🔒 Güvenlik
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
+- Row Level Security (RLS) politikaları
+- Resim yükleme validasyonları
+- Rate limiting
+- Input sanitization
 
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+## 📱 Responsive Breakpoints
+
+```css
+sm: 640px
+md: 768px
+lg: 1024px
+xl: 1280px
+2xl: 1536px
 ```
+
+## 🚀 Kurulum
+
+1. Repoyu klonlayın
+```bash
+git clone [repo-url]
+```
+
+2. Bağımlılıkları yükleyin
+```bash
+npm install
+```
+
+3. Supabase projesini oluşturun ve environment değişkenlerini ayarlayın
+```env
+VITE_SUPABASE_URL=your-supabase-url
+VITE_SUPABASE_ANON_KEY=your-supabase-anon-key
+```
+
+4. Geliştirme sunucusunu başlatın
+```bash
+npm run dev
+```
+
+## 📝 Yapılacaklar
+
+- [ ] Proje kurulumu
+- [ ] Supabase entegrasyonu
+- [ ] Veritabanı tablolarının oluşturulması
+- [ ] Auth sisteminin kurulması
+- [ ] Temel UI bileşenlerinin oluşturulması
+- [ ] Chat fonksiyonlarının implementasyonu
+- [ ] Realtime özelliklerin eklenmesi
+- [ ] Resim yükleme sisteminin kurulması
+- [ ] Tema desteğinin eklenmesi
+- [ ] Test ve optimizasyon 

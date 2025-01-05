@@ -6,8 +6,9 @@ import { Button } from '@/components/base/Button';
 import { Input } from '@/components/base/Input';
 import { Text } from '@/components/base/Text';
 
-const Login = () => {
-  const { login, isLoading } = useAuth();
+const Register = () => {
+  const { register, isLoading } = useAuth();
+  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
@@ -17,9 +18,9 @@ const Login = () => {
     setError(null);
 
     try {
-      await login(email, password);
+      await register(email, password, name);
     } catch (err: any) {
-      setError(err.message || 'Giriş yapılırken bir hata oluştu');
+      setError(err.message || 'Kayıt olurken bir hata oluştu');
     }
   };
 
@@ -31,10 +32,10 @@ const Login = () => {
             {/* Başlık */}
             <div className="text-center">
               <Text variant="h3" size="2xl" weight="bold">
-                FlowChat'e Hoş Geldiniz
+                Hesap Oluştur
               </Text>
               <Text size="sm" color="muted">
-                Devam etmek için giriş yapın
+                FlowChat'e katılmak için kayıt olun
               </Text>
             </div>
 
@@ -49,6 +50,17 @@ const Login = () => {
 
             {/* Form Alanları */}
             <div className="space-y-4">
+              <div>
+                <Input
+                  type="text"
+                  label="Ad Soyad"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  placeholder="John Doe"
+                  isRequired
+                />
+              </div>
+
               <div>
                 <Input
                   type="email"
@@ -80,21 +92,18 @@ const Login = () => {
                 isLoading={isLoading}
                 isDisabled={isLoading}
               >
-                Giriş Yap
+                Kayıt Ol
               </Button>
 
-              <div className="flex items-center justify-between">
-                <Link to="/register">
-                  <Button variant="ghost" size="sm">
-                    Hesap Oluştur
-                  </Button>
-                </Link>
-
-                <Link to="/forgot-password">
-                  <Button variant="ghost" size="sm">
-                    Şifremi Unuttum
-                  </Button>
-                </Link>
+              <div className="text-center">
+                <Text size="sm" color="muted">
+                  Zaten hesabınız var mı?{' '}
+                  <Link to="/login">
+                    <Button variant="ghost" size="sm">
+                      Giriş Yap
+                    </Button>
+                  </Link>
+                </Text>
               </div>
             </div>
           </div>
@@ -104,4 +113,4 @@ const Login = () => {
   );
 };
 
-export default Login; 
+export default Register; 

@@ -12,6 +12,14 @@ import {
   LoadingSpinner
 } from './components';
 
+export interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  leftIcon?: React.ReactNode;
+  rightIcon?: React.ReactNode;
+  isDisabled?: boolean;
+  errorMessage?: string;
+  onClear?: () => void;
+}
+
 class Input extends Component<InputProps, InputState> {
   static defaultProps = DEFAULT_PROPS;
 
